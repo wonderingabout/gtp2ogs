@@ -1,5 +1,6 @@
 let fs = require('fs')
 let console = require('console');
+let split2 = require('split2')
 
 exports.DEBUG = false;
 exports.PERSIST = false;
@@ -8,6 +9,11 @@ exports.NOCLOCK = false;
 exports.GREETING = "";
 exports.FAREWELL = "";
 exports.REJECTNEWMSG = "";
+exports.LZPVRE = /([A-Z]\d+|pass) -> +(\d+) \(V: +(\d+.\d\d)%\) \(N: +(\d+.\d\d)%\) PV:(( ([A-Z][0-9]+|pass)+)+)/;
+exports.LZSTOPRE = /(\d+) visits, (\d+) nodes, (\d+) playouts, (\d+) n\/s/
+exports.PGPVRE = /main move path: ((,?[a-z]{2}\(((\(ind\))|[^()])*\))+)/
+exports.PGSTOPRE = /[0-9]+.. move\([bw]\): [a-z]{2}, (winrate=([0-9]+\.[0-9]+)%, N=([0-9]+), Q=(-?[0-9]+\.[0-9]+), p=(-?[0-9]+\.[0-9]+), v=(-?[0-9]+\.[0-9]+), cost (-?[0-9]+\.[0-9]+)ms, sims=([0-9]+)), height=([0-9]+), avg_height=([0-9]+\.[0-9]+), global_step=([0-9]+)/
+exports.PGCLPV = /\([^()]*\)/g;
 
 exports.check_rejectnew = function() {};
 exports.banned_users = {};
@@ -99,6 +105,14 @@ exports.updateFromArgv = function() {
         .demand('apikey')
         .describe('username', 'Specify the username of the bot, for example GnuGo')
         .describe('apikey', 'Specify the API key for the bot')
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////// PV /////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        .describe('logogspv', 'Enable to show the PV for LZ or phoenixgo, example --logogspv LZ or --logogspv PG')
+        .string('logogspv')
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // you need to do npm install -g split2 to use this branch //////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
         .describe('host', 'OGS Host to connect to')
         .default('host', 'online-go.com')
         .describe('port', 'OGS Port to connect to')
@@ -367,6 +381,13 @@ if (argv.botid || argv.bot || argv.id || argv.minrankedhandicap || argv.maxranke
 
     if (argv.noclock) {
         exports.NOCLOCK = true;
+    }
+
+    if (argv.logogspv) {
+        if (argv.logogspv.toLowerCase() === 'lz')
+            exports.OGSLOG = 'LZ'
+        else if (argv.logogspv.toLowerCase() === 'pg')
+            exports.OGSLOG = 'PG'
     }
 
     exports.check_rejectnew = function()

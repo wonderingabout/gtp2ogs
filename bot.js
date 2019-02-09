@@ -1,6 +1,7 @@
 let child_process = require('child_process');
 let console = require('./console').console;
 let config = require('./config');
+let split2 = require('split2')
 
 /*********/
 /** Bot **/
@@ -71,6 +72,79 @@ class Bot {
             }
         });
     }}}
+
+    postToChat(errline) {
+      if(!OGSLOG) return;
+      
+      if(OGSLOG === 'LZ') {
+        this.postToChatLZ(errline);
+      } else if(OGSLOG === 'PG') {
+        this.postToChatPG(errline);
+      }
+    }
+      
+    postToChatPG(errline) {
+      if(!OGSLOG) return;
+      
+        if (!this.prevLine) {
+            let myPVRe = PGPVRE
+            let myPV = myPVRe.exec(errline);
+            if (myPV) {
+                this.prevLine = myPV;
+            }
+        }
+        
+        let stopRe = PGSTOPRE;
+        let stop = stopRe.exec(errline);
+        if (stop && this.prevLine) {
+            let pv = this.prevLine[1].replace(PGCLPV, '').replace(PGCLPV, '')
+                .split(",")
+                .map(s => s === '..' ? '..' : s[0] + num2char(this.game.state.width - char2num(s[1]) - 1))
+                .join('');
+            let body = this.createMessage(stop[1], pv);
+            this.game.sendChat(body, this.game.state.moves.length+1, "malkovich");
+            this.prevLine = null;
+        }
+    }
+      
+    postToChatLZ(errline) {
+      if(!OGSLOG) return;
+      
+        if (!this.prevLine) {
+            let myPVRe = LZPVRE
+            let myPV = myPVRe.exec(errline);
+            if (myPV) {
+                this.prevLine = myPV;
+            }
+        }
+        
+        let stopRe = LZSTOPRE;
+        let stop = stopRe.exec(errline);
+        if (stop && this.prevLine) {
+            let winrate = this.prevLine[3],
+              visits = stop[1],
+              playouts = stop[3],
+              nps = stop[4],
+              pv = this.prevLine[5]
+                .trim().split(" ")
+                .map(s => s === 'pass' ? '..' : num2char(gtpchar2num(s[0].toLowerCase())) + num2char(this.game.state.width - s.slice(1)))
+                .join('');
+            this.winrate = Number(this.prevLine[3]);
+            let name = `Winrate: ${winrate}%, Visits: ${visits}, Playouts: ${playouts}`;
+            let body = this.createMessage(name, pv);
+            this.game.sendChat(body, this.game.state.moves.length+1, "malkovich");
+            this.prevLine = null;
+        }
+    }
+    
+    createMessage(name, pv) {
+        return {
+            "type": "analysis",
+            "name": name,
+            "from": this.game.state.moves.length,
+            "moves": pv
+        }
+    }
 
     log(str) { /* {{{ */
         let arr = ["[" + this.proc.pid + "]"];
