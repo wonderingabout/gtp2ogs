@@ -723,3 +723,5 @@ describe("Retrying bot failures", () => {
         ensureRetry(fakes);
     });
 });
+
+module.exports = { FakeSocket, FakeAPI, base_challenge };
