@@ -34,10 +34,82 @@ class Bot {
 
         if (config.DEBUG) this.log("Starting ", cmd.join(' '));
 
-        this.proc.stderr.on('data', (data) => {
-            if (this.ignore)  return;
-            this.error("stderr: " + data);
+/// The part below has been imported from roy7-live branch and modified :
+/// source : https://github.com/roy7/gtp2ogs/tree/live
+/// from here :
+///        this.proc.on('error', function (err) {
+/// To here : 
+//         let stdout_buffer = "";
+///        this.proc.stdout.on('data', (data) => {
+/// the existing code in between roy7 code and gtp2ogs-devel code was overwritten
+/// all in all, only a few lines are overwritten in the official gtp2ogs code, which are : 
+///        this.proc.stderr.on('data', (data) => {
+///            if (this.ignore)  return;
+///            this.error("stderr: " + data);
+///        });
+/// so that only roy7-live (much longer) code persists
+/// also replacing == and != , with === and !==
+/// also replacing conn_log with this.log
+
+
+        this.proc.on('error', function (err) {
+            this.log("ERROR Process: ", err);
+            this.log("ERROR Will reconnect to this game");
+            if (this.game)
+            {
+                this.game.bot = null;
+                let mygameid = this.game.game_id;
+                this.conn.disconnectFromGame(mygameid);
+                this.conn.connectToGame(mygameid);
+            }
         });
+
+        let stderr_buffer = "";
+        this.proc.stderr.on('data', (data) => {
+            if (this.ignore) return;
+
+            stderr_buffer += data.toString();
+
+            if (stderr_buffer[stderr_buffer.length-1] !== '\n') {
+                return;
+            }
+            let errlines = stderr_buffer.split("\n");
+            stderr_buffer = "";
+            for (let i=0; i < errlines.length; ++i) {
+                let errline = errlines[i];
+                if (errline.trim() === "") {
+                    continue;
+                } else {
+                    this.error("stderr: " + errline);
+                    // 72622 visits, score 59.56% (from 59.46%) PV: R11 F16 G16 G17 E16 H16 F15 H14 G18 H12 J13 H13 K11 H10 K9 H8 F10
+                    // for PhoenixGo stderr: I1228 17:09:45.425348 23787 mcts_engine.cc:152] Move: dp,pp,dc,pd,nc,qf,df
+                    // for PhoenixGo stderr: I1228 17:09:45.425390 23787 mcts_engine.cc:158] 7th move(b): df, winrate=44.772987%,
+                    // N=169, Q=-0.104540, p=0.184698, v=-0.115591, cost 5038.268555ms, sims=764, height=30, avg_height=9.635406, 
+                    // global_step=639200
+                    let myPVRe = /winrate=(.*), height=/;
+                    let myPV = myPVRe.exec(errline);
+                    if (myPV) this.game.sendChat("Winrate: " + myPV[1], this.game.state.moves.length+1, "malkovich");
+                }
+            }
+        });
+
+/// The part above has been imported from roy7-live branch and modified :
+/// source : https://github.com/roy7/gtp2ogs/tree/live
+/// from here :
+///        this.proc.on('error', function (err) {
+/// To here : 
+//         let stdout_buffer = "";
+///        this.proc.stdout.on('data', (data) => {
+/// the existing code in between roy7 code and gtp2ogs-devel code was overwritten
+/// all in all, only a few lines are overwritten in the official gtp2ogs code, which are : 
+///        this.proc.stderr.on('data', (data) => {
+///            if (this.ignore)  return;
+///            this.error("stderr: " + data);
+///        });
+/// so that only roy7-live (much longer) code persists
+/// also replacing == and != , with === and !==
+/// also replacing conn_log with this.log
+
         let stdout_buffer = "";
         this.proc.stdout.on('data', (data) => {
             if (this.ignore)  return;
