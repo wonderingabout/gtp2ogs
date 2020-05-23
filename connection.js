@@ -560,14 +560,10 @@ class Connection {
 function request(method, host, port, path, data) {
     return new Promise((resolve, reject) => {
         if (config.DEBUG) {
-            // Keeping a backup of old copy syntax just in case.
-            // const noapijwtdata = JSON.parse(JSON.stringify(data));
-            // noapijwtdata.apikey = "hidden";
-            // noapijwtdata.jwt = "hidden";
-
             // ES6 offers shallow copy syntax using spread
-            const noapidata = { ...data, apikey: "hidden", jwt: "hidden" };
-            console.debug(method, host, port, path, noapidata);
+            const noapidata = { ...data };
+            if ("apikey" in noapidata) noapidata.apikey = "hidden";
+            if ("jwt" in noapidata)    noapidata.jwt    = "hidden";
         }
 
         let enc_data_type = "application/x-www-form-urlencoded";
