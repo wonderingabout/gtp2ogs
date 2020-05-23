@@ -564,6 +564,7 @@ function request(method, host, port, path, data) {
             const noapidata = { ...data };
             if ("apikey" in noapidata) noapidata.apikey = "hidden";
             if ("jwt" in noapidata)    noapidata.jwt    = "hidden";
+            console.debug(method, host, port, path, noapidata);
         }
 
         let enc_data_type = "application/x-www-form-urlencoded";
