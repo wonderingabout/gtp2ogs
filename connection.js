@@ -291,9 +291,14 @@ class Connection {
         // check bot is available, else don't mislead user
         const rejectnew_result = config.get_rejectnew_result();
         if (rejectnew_result.reject) {
+            this.hide();
             conn_log(`Not accepting new games (${rejectnew_result.type})`);
             return rejectnew_result;
+        // } else if (!config.hidden) { handle that later, for now just test if it works
+        } else {
+            this.unhide();
         }
+
         if (this.connected_games) {
             const number_connected_games = Object.keys(this.connected_games).length;
             if (config.DEBUG) console.log(`# of connected games = ${number_connected_games}`);
