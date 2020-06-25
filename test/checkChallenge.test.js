@@ -11,15 +11,11 @@ const sinon = require('sinon');
 const https = require('https');
 
 const { FakeSocket, FakeAPI, base_challenge } = require('./test')
+const { requireUncached } = require('../utils/requireUncached');
 
 function stub_console() {
     sinon.stub(console, 'log');
     sinon.stub(console, 'debug');
-}
-
-function requireUncached(module) {
-  delete require.cache[require.resolve(module)];
-  return require(module);
 }
 
 function getNewConfig() {
