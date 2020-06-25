@@ -42,14 +42,13 @@ describe('Argv to Config', () => {
           argv.boardsizes = "9,13,19";
 
           config.updateFromArgv(argv); 
-          const result = config.allowed_boardsizes;
 
           const arrayExpected = [];
           arrayExpected[9] = true;
           arrayExpected[13] = true;
           arrayExpected[19] = true;
           
-          assert.deepEqual(result, arrayExpected);
+          assert.deepEqual(config.allowed_boardsizes, arrayExpected);
           assert.deepEqual(config.allowed_boardsizes_ranked, []);
           assert.deepEqual(config.allowed_boardsizes_unranked, []);
 
@@ -59,7 +58,6 @@ describe('Argv to Config', () => {
           argv.boardsizesranked = "9,13,19";
 
           config.updateFromArgv(argv);
-          const result = config.allowed_boardsizes_ranked;
 
           const arrayExpected = [];
           arrayExpected[9] = true;
@@ -67,7 +65,7 @@ describe('Argv to Config', () => {
           arrayExpected[19] = true;
 
           assert.deepEqual(config.allowed_boardsizes, []);
-          assert.deepEqual(result, arrayExpected);
+          assert.deepEqual(config.allowed_boardsizes_ranked, arrayExpected);
           assert.deepEqual(config.allowed_boardsizes_unranked, []);
 
         });
@@ -76,7 +74,6 @@ describe('Argv to Config', () => {
           argv.boardsizesunranked = "9,13,19";
 
           config.updateFromArgv(argv); 
-          const result = config.allowed_boardsizes_unranked;
 
           const arrayExpected = [];
           arrayExpected[9] = true;
@@ -85,7 +82,7 @@ describe('Argv to Config', () => {
 
           assert.deepEqual(config.allowed_boardsizes, []);
           assert.deepEqual(config.allowed_boardsizes_ranked, []);
-          assert.deepEqual(result, arrayExpected);
+          assert.deepEqual(config.allowed_boardsizes_unranked, arrayExpected);
 
         });
 

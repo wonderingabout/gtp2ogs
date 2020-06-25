@@ -55,7 +55,8 @@ exports.updateFromArgv = function(argv) {
 
     testBotCommandArgvIsValid(argv);
 
-    const rankedUnrankedOptions = [{ name: "bans" },
+    const rankedUnrankedOptions = [
+        { name: "bans" },
         { name: "boardsizes", default: "9,13,19" },
         { name: "komis", default: "automatic" },
         { name: "speeds", default: "all" },
