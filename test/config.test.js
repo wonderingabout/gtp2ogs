@@ -16,7 +16,6 @@ function stub_console() {
 
 function getNewArgv() {
   return {
-    debug: true,
     apikey: 'deadbeef',
     host: 'test',
     port: 80,
@@ -45,12 +44,12 @@ describe('Argv to Config', () => {
           config.updateFromArgv(argv); 
           const result = config.allowed_boardsizes;
 
-          const expected = [];
-          expected[9] = true;
-          expected[13] = true;
-          expected[19] = true;
+          const arrayExpected = [];
+          arrayExpected[9] = true;
+          arrayExpected[13] = true;
+          arrayExpected[19] = true;
           
-          assert.deepEqual(result, expected);
+          assert.deepEqual(result, arrayExpected);
           assert.deepEqual(config.allowed_boardsizes_ranked, []);
           assert.deepEqual(config.allowed_boardsizes_unranked, []);
 
@@ -62,13 +61,13 @@ describe('Argv to Config', () => {
           config.updateFromArgv(argv);
           const result = config.allowed_boardsizes_ranked;
 
-          const expected = [];
-          expected[9] = true;
-          expected[13] = true;
-          expected[19] = true;
+          const arrayExpected = [];
+          arrayExpected[9] = true;
+          arrayExpected[13] = true;
+          arrayExpected[19] = true;
 
           assert.deepEqual(config.allowed_boardsizes, []);
-          assert.deepEqual(result, expected);
+          assert.deepEqual(result, arrayExpected);
           assert.deepEqual(config.allowed_boardsizes_unranked, []);
 
         });
@@ -79,14 +78,23 @@ describe('Argv to Config', () => {
           config.updateFromArgv(argv); 
           const result = config.allowed_boardsizes_unranked;
 
-          const expected = [];
-          expected[9] = true;
-          expected[13] = true;
-          expected[19] = true;
+          const arrayExpected = [];
+          arrayExpected[9] = true;
+          arrayExpected[13] = true;
+          arrayExpected[19] = true;
 
           assert.deepEqual(config.allowed_boardsizes, []);
           assert.deepEqual(config.allowed_boardsizes_ranked, []);
-          assert.deepEqual(result, expected);
+          assert.deepEqual(result, arrayExpected);
+
+        });
+
+        it('set default if boardsizes is not used', () => {
+          config.updateFromArgv(argv);
+
+          assert.deepEqual(config.boardsizes, "9,13,19");
+          assert.deepEqual(config.boardsizesranked, undefined);
+          assert.deepEqual(config.boardsizesunranked, undefined);
 
         });
     
@@ -98,16 +106,10 @@ describe('Argv to Config', () => {
         argv.minrank = "13k";
 
         config.updateFromArgv(argv); 
-        const result = config.allowed_boardsizes;
 
-        const expected = [];
-        expected[9] = true;
-        expected[13] = true;
-        expected[19] = true;
-        
-        assert.deepEqual(result, expected);
-        assert.deepEqual(config.allowed_boardsizes_ranked, []);
-        assert.deepEqual(config.allowed_boardsizes_unranked, []);
+        assert.deepEqual(config.minrank, 17);
+        assert.deepEqual(config.minrankranked, undefined);
+        assert.deepEqual(config.minrankunranked, undefined);
 
       });
 
@@ -115,11 +117,8 @@ describe('Argv to Config', () => {
         argv.minrank = "1p";
 
         config.updateFromArgv(argv); 
-        const result = config.minrank;
-
-        const expected = 37;
         
-        assert.deepEqual(result, expected);
+        assert.deepEqual(config.minrank, 37);
         assert.deepEqual(config.minrankranked, undefined);
         assert.deepEqual(config.minrankunranked, undefined);
 
@@ -129,12 +128,9 @@ describe('Argv to Config', () => {
         argv.minrankranked = "1d";
 
         config.updateFromArgv(argv);
-        const result = config.minrankranked;
-
-        const expected = 30;
 
         assert.deepEqual(config.minrank, undefined);
-        assert.deepEqual(result, expected);
+        assert.deepEqual(config.minrankranked, 30);
         assert.deepEqual(config.minrankunranked, undefined);
 
       });
@@ -143,16 +139,48 @@ describe('Argv to Config', () => {
         argv.minrankunranked = "5k";
 
         config.updateFromArgv(argv); 
-        const result = config.minrankunranked;
-
-        const expected = 25;
 
         assert.deepEqual(config.minrank, undefined);
         assert.deepEqual(config.minrankranked, undefined);
-        assert.deepEqual(result, expected);
+        assert.deepEqual(config.minrankunranked, 25);
+
+      });
+
+      it('do not export if minrank is not used', () => {
+        config.updateFromArgv(argv);
+
+        assert.deepEqual(config.minrank, undefined);
+        assert.deepEqual(config.minrankranked, undefined);
+        assert.deepEqual(config.minrankunranked, undefined);
 
       });
   
+  });
+
+  describe('Persist', () => {
+
+    it('export persist', () => {
+      argv.persist = true;
+
+      config.updateFromArgv(argv); 
+      const result = config.persist;
+
+      const expected = true;
+      
+      assert.deepEqual(result, expected);
+
+    });
+
+    it('do not export if persist is not used', () => {
+      config.updateFromArgv(argv); 
+      const result = config.persist;
+
+      const expected = undefined;
+      
+      assert.deepEqual(result, expected);
+
+    });
+
   });
 
 });
