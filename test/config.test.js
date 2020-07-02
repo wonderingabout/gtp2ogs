@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 
-const { getNewArgv } = require('./utils/getNewArgv');
+const { getNewArgvReset } = require('./utils/getNewArgvReset');
 const { getNewConfigUncached } = require('./utils/getNewConfigUncached');
 
 let argv;
@@ -12,7 +12,7 @@ describe('Argv to Config', () => {
    
     beforeEach(function() {
 
-      argv = getNewArgv();
+      argv = getNewArgvReset();
       config = getNewConfigUncached();
       
     });

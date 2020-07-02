@@ -1,4 +1,4 @@
-function getNewArgv() {
+function getNewArgvReset() {
     return {
         apikey: 'deadbeef',
         host: 'test',
@@ -8,4 +8,4 @@ function getNewArgv() {
     };
 }
 
-exports.getNewArgv = getNewArgv;
+exports.getNewArgvReset = getNewArgvReset;
