@@ -1,38 +1,19 @@
 // vim: tw=120 softtabstop=4 shiftwidth=4
 
 const assert = require('assert');
-const console = require('../console').console;
-const sinon = require('sinon');
 
-const { requireUncached } = require('../utils/requireUncached');
+const { getNewArgv } = require('./utils/getNewArgv');
+const { getNewConfigUncached } = require('./utils/getNewConfigUncached');
 
 let argv;
 let config;
-
-function stub_console() {
-    sinon.stub(console, 'log');
-    sinon.stub(console, 'debug');
-}
-
-function getNewArgv() {
-  return {
-    apikey: 'deadbeef',
-    host: 'test',
-    port: 80,
-    username: 'testbot',
-    _: ['gtp-program', '--argument'],
-  };
-
-}
 
 describe('Argv to Config', () => {
    
     beforeEach(function() {
 
       argv = getNewArgv();
-      config = requireUncached('../config');
-
-      stub_console();
+      config = getNewConfigUncached();
       
     });
 
