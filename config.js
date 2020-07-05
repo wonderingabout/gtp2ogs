@@ -10,6 +10,8 @@ const { getOptionName } = require('./options/getOptionName');
 const { getRankedUnranked } = require('./options/getRankedUnranked');
 const { getRankedUnrankedUnderscored } = require('./options/getRankedUnrankedUnderscored');
 
+const { console } = require('./console');
+
 const { droppedOptions, ogsPvAIs, rankedUnrankedOptions } = require('./constants');
 
 exports.check_rejectnew = function() {};

@@ -4,7 +4,7 @@ const assert = require('assert');
 
 const { getNewArgvReset } = require('./module_loading/getNewArgvReset');
 const { getNewConfigUncached } = require('./module_loading/getNewConfigUncached');
-const { stub_real_console } = require('./utils/stub_real_console');
+const { stub_console } = require('./utils/stub_console');
 
 let argv;
 let config;
@@ -16,7 +16,7 @@ describe('Argv to Config', () => {
       argv = getNewArgvReset();
       config = getNewConfigUncached();
 
-      stub_real_console();
+      stub_console();
       
     });
 
