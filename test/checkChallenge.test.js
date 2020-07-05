@@ -4,11 +4,11 @@ const assert = require('assert');
 const https = require('https');
 const sinon = require('sinon');
 
-const { base_challenge } = require('./utils/base_challenge');
-const { FakeAPI } = require('./utils/FakeAPI');
-const { FakeSocket } = require('./utils/FakeSocket');
-const { getNewConfigUncached } = require('./utils/getNewConfigUncached');
-const { getNewConnectionUncached } = require('./utils/getNewConnectionUncached');
+const { base_challenge } = require('./base_server_packets/base_challenge');
+const { FakeAPI } = require('./fake_modules/FakeAPI');
+const { FakeSocket } = require('./fake_modules/FakeSocket');
+const { getNewConfigUncached } = require('./module_loading/getNewConfigUncached');
+const { getNewConnectionUncached } = require('./module_loading/getNewConnectionUncached');
 const { stub_console } = require('./utils/stub_console');
 
 let config;
@@ -39,7 +39,7 @@ describe('Challenges', () => {
   
   describe('General rules', () => {
 
-    it('accept default notification from base_challenge in test.js, with almost empty config', () => {
+    it('accept default notification from base_challenge, with almost empty config', () => {
       const notification = base_challenge();
       
       const result = conn.checkChallenge(notification);
@@ -51,7 +51,7 @@ describe('Challenges', () => {
 
   describe('Sanity Checks', () => {
 
-    it('accept real notification challenge with almost empty config (except defaults from base_challenge in test.js)', () => {
+    it('accept real notification challenge with almost empty config (except defaults from base_challenge)', () => {
       // notification sample as of 24 june 2020
       const notificationSample = {"id":"787:118a6213-4371-4fbf-9574-11c8016e86d8","type":"challenge","player_id":787,
       "timestamp":1593029394,"read_timestamp":0,"read":0,"aux_delivered":0,
@@ -79,7 +79,39 @@ describe('Challenges', () => {
     
     const result = conn.checkChallenge(notification);
     
-    assert.deepEqual(result, ({ reject: true, msg: 'Missing key user, cannot check challenge, please contact my bot admin.' }));
+    assert.deepEqual(result, ({ reject: true, msg: 'Missing key user, cannot check challenge, please try again.' }));
+    });
+
+    it('reject non-correspondence challenge that has pause on weekends', () => {
+      const notification = base_challenge({ time_control: { system: "fischer", time_control: "fischer", speed: "live", pause_on_weekends: true, time_increment: 1, initial_time: 59, max_time: 59 } });
+
+      const result = conn.checkChallengeSanityChecks(notification);
+
+      assert.deepEqual(result, ({ reject: true, msg: 'There was an unexpected error: your live challenge has pause on weekends, but this is only possible for correspondence games, please try again.' }));
+    });
+
+    it('accept non-correspondence challenge that does not have pause on weekends', () => {
+      const notification = base_challenge({ time_control: { system: "fischer", time_control: "fischer", speed: "live", pause_on_weekends: false, time_increment: 1, initial_time: 59, max_time: 59 } });
+
+      const result = conn.checkChallengeSanityChecks(notification);
+
+      assert.deepEqual(result, ({ reject: false }));
+    });
+
+    it('accept correspondence challenge that has pause on weekends', () => {
+      const notification = base_challenge({ time_control: { system: "fischer", time_control: "fischer", speed: "correspondence", pause_on_weekends: true, time_increment: 1, initial_time: 59, max_time: 59 } });
+
+      const result = conn.checkChallengeSanityChecks(notification);
+
+      assert.deepEqual(result, ({ reject: false }));
+    });
+
+    it('accept correspondence challenge that does not have pause on weekends', () => {
+      const notification = base_challenge({ time_control: { system: "fischer", time_control: "fischer", speed: "correspondence", pause_on_weekends: false, time_increment: 1, initial_time: 59, max_time: 59 } });
+
+      const result = conn.checkChallengeSanityChecks(notification);
+
+      assert.deepEqual(result, ({ reject: false }));
     });
 
   });

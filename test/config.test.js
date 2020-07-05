@@ -2,8 +2,8 @@
 
 const assert = require('assert');
 
-const { getNewArgvReset } = require('./utils/getNewArgvReset');
-const { getNewConfigUncached } = require('./utils/getNewConfigUncached');
+const { getNewArgvReset } = require('./module_loading/getNewArgvReset');
+const { getNewConfigUncached } = require('./module_loading/getNewConfigUncached');
 const { stub_console } = require('./utils/stub_console');
 
 let argv;

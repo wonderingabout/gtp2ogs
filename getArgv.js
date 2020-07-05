@@ -1,6 +1,7 @@
-function getArgv () {
-    const ogsPvAIs = ["LeelaZero", "Sai", "KataGo", "PhoenixGo", "Leela"];
-    
+const { ogsPvAIs } = require('./constants').constants;
+
+function getArgv() {
+
     const optimist = require("optimist")
         // 1) ROOT OPTIONS
         .usage("Usage: $0 --username <bot-username> --apikey <apikey> [gtp2ogs arguments] -- botcommand [bot arguments]")

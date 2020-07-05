@@ -5,10 +5,12 @@
 
 const fs = require('fs');
 
-const { getArgNamesGRU } = require('./utils/getArgNamesGRU');
-const { getOptionName } = require('./utils/getOptionName');
-const { getRankedUnranked } = require('./utils/getRankedUnranked');
-const { getRankedUnrankedUnderscored } = require('./utils/getRankedUnrankedUnderscored');
+const { getArgNamesGRU } = require('./options/getArgNamesGRU');
+const { getOptionName } = require('./options/getOptionName');
+const { getRankedUnranked } = require('./options/getRankedUnranked');
+const { getRankedUnrankedUnderscored } = require('./options/getRankedUnrankedUnderscored');
+
+const { droppedOptions, ogsPvAIs, rankedUnrankedOptions } = require('./constants').constants;
 
 exports.check_rejectnew = function() {};
 
@@ -35,13 +37,11 @@ exports.allowed_timecontrols_ranked = {};
 exports.allowed_timecontrols_unranked = {};
 
 exports.updateFromArgv = function(argv) {
-    const ogsPvAIs = ["LeelaZero", "Sai", "KataGo", "PhoenixGo", "Leela"];
-
     // console messages
     // A- greeting and debug status
 
     const debugStatus = argv.debug ? "ON" : "OFF";
-    console.log(`\ngtp2ogs version 6.0`
+    console.log(`\ngtp2ogs version 6.0.1`
                 + `\n--------------------`
                 + `\n- For changelog or latest devel updates, `
                 + `please visit https://github.com/online-go/gtp2ogs/tree/devel`
@@ -49,48 +49,9 @@ exports.updateFromArgv = function(argv) {
 
     // B - test unsupported argv
 
-    if (argv.rankedonly && argv.unrankedonly) {
-        throw `Please choose either --rankedonly or --unrankedonly, not both.`;
-    }
-
     testBotCommandArgvIsValid(argv);
-
-    const rankedUnrankedOptions = [
-        { name: "bans" },
-        { name: "boardsizes", default: "9,13,19" },
-        { name: "komis", default: "automatic" },
-        { name: "speeds", default: "all" },
-        { name: "timecontrols", default: "fischer,byoyomi,simple,canadian" },
-        { name: "proonly" },
-        { name: "nopause" },
-        { name: "nopauseonweekends" },
-        { name: "noautohandicap" },
-        { name: "minrank" },
-        { name: "maxrank" },
-        { name: "minhandicap" },
-        { name: "maxhandicap" },
-        { name: "minmaintimeblitz", default: 15 }, // 15 seconds
-        { name: "minmaintimelive", default: 60 }, // 1 minutes
-        { name: "minmaintimecorr", default: 259200 }, // 3 days
-        { name: "minperiodsblitz", default: 3 },
-        { name: "minperiodslive", default: 3 },
-        { name: "minperiodscorr", default: 3 },
-        { name: "minperiodtimeblitz", default: 5 }, // 5 seconds
-        { name: "minperiodtimelive", default: 10 }, // 10 seconds
-        { name: "minperiodtimecorr", default: 14400 }, // 4 hours
-        { name: "maxmaintimeblitz", default: 300 }, // 5 minutes
-        { name: "maxmaintimelive", default: 7200 }, // 2 hours
-        { name: "maxmaintimecorr", default: 604800 }, // 7 days
-        { name: "maxperiodsblitz", default: 20 },
-        { name: "maxperiodslive", default: 20 },
-        { name: "maxperiodscorr", default: 10 },
-        { name: "maxperiodtimeblitz", default: 10 }, // 10 seconds
-        { name: "maxperiodtimelive", default: 120 }, // 2 minutes
-        { name: "maxperiodtimecorr", default: 259200 } // 3 days
-    ];
-
-    testBotCommandArgvIsValid(argv);
-    testDroppedArgv(argv);
+    testDroppedArgv(droppedOptions, argv);
+    testConflictingOptions("rankedonly", "unrankedonly", argv);
     ensureSupportedOgspvAI(argv.ogspv, ogsPvAIs);
     testRankedUnrankedOptions(rankedUnrankedOptions, argv);
 
@@ -194,7 +155,6 @@ exports.updateFromArgv = function(argv) {
 }
 
 function testRankedUnrankedOptions(rankedUnrankedOptions, argv) {
-
     for (const option of rankedUnrankedOptions) {
         const [general, ranked, unranked] = getArgNamesGRU(option.name);
         
@@ -210,11 +170,6 @@ function testRankedUnrankedOptions(rankedUnrankedOptions, argv) {
             }
         }
     }
-}
-
-function getBLCString(optionName, rankedUnranked) {
-    return `${optionName}blitz${rankedUnranked}, --${optionName}live${rankedUnranked} `
-           + `and/or --${optionName}corr${rankedUnranked}`;
 }
 
 function testBotCommandArgvIsValid(argv) {
@@ -234,54 +189,8 @@ function testBotCommandArgvIsValid(argv) {
     }
 }
 
-function testDroppedArgv(argv) {
-    const droppedArgv = [
-         [["botid", "bot", "id"], "username"],
-         [["mingamesplayed", "mingamesplayedranked", "mingamesplayedunranked"], undefined],
-         [["fakerank"], undefined],
-         [["minrankedhandicap"], "minhandicapranked"],
-         [["minunrankedhandicap"], "minhandicapunranked"],
-         [["maxrankedhandicap"], "maxhandicapranked"],
-         [["maxunrankedhandicap"], "maxhandicapunranked"],
-         [["maxtotalgames"], "maxconnectedgames"],
-         [["maxactivegames"], "maxconnectedgamesperuser"],
-         [["maxmaintime"],  getBLCString("maxmaintime", "")],
-         [["maxmaintimeranked"], getBLCString("maxmaintime", "ranked")],
-         [["maxmaintimeunranked"], getBLCString("maxmaintime", "unranked")],
-         [["minmaintime"], getBLCString("minmaintime", "")],
-         [["minmaintimeranked"], getBLCString("minmaintime", "ranked")],
-         [["minmaintimeunranked"], getBLCString("minmaintime", "unranked")],
-         [["maxperiodtime"], getBLCString("maxperiodtime", "")],
-         [["maxperiodtimeranked"], getBLCString("maxperiodtime", "ranked")],
-         [["maxperiodtimeunranked"], getBLCString("maxperiodtime", "unranked")],
-         [["minperiodtime"], getBLCString("minperiodtime", "")],
-         [["minperiodtimeranked"], getBLCString("minperiodtime", "ranked")],
-         [["minperiodtimeunranked"], getBLCString("minperiodtime", "unranked")],
-         [["maxperiods"],  getBLCString("maxperiods", "")],
-         [["maxperiodsranked"], getBLCString("maxperiods", "ranked")],
-         [["maxperiodsunranked"], getBLCString("maxperiods", "unranked")],
-         [["minperiods"], getBLCString("minperiods", "")],
-         [["minperiodsranked"], getBLCString("minperiods", "ranked")],
-         [["minperiodsunranked"], getBLCString("minperiods", "unranked")],
-         [["ban"], "bans"],
-         [["banranked"], "bansranked"],
-         [["banunranked"], "bansunranked"],
-         [["boardsize"], "boardsizes"],
-         [["boardsizeranked"], "boardsizesranked"],
-         [["boardsizeunranked"], "boardsizesunranked"],
-         [["boardsizewidths", "boardsizewidthsranked", "boardsizewidthsunranked",
-           "boardsizeheights", "boardsizeheightsranked", "boardsizeheightsunranked"], "boardsizes"],
-         [["komi"], "komis"],
-         [["komiranked"], "komisranked"],
-         [["komiunranked"], "komisunranked"],
-         [["speed"], "speeds"],
-         [["speedranked"], "speedsranked"],
-         [["speedunranked"], "speedsunranked"],
-         [["timecontrol"], "timecontrols"],
-         [["timecontrolranked"], "timecontrolsranked"],
-         [["timecontrolunranked"], "timecontrolsunranked"]
-    ];
-    for (const [oldNames, newName] of droppedArgv) {
+function testDroppedArgv(droppedOptions, argv) {
+    for (const [oldNames, newName] of droppedOptions) {
         for (const oldName of oldNames) {
             if (argv[oldName]) {
                 if (newName !== undefined) throw `Dropped: --${oldName} is no longer supported, use --${newName} instead.`;
@@ -298,6 +207,12 @@ function testDroppedArgv(argv) {
                 }
             }
         }
+    }
+}
+
+function testConflictingOptions(optionNameFirst, optionNameSecond, argv) {
+    if (argv[optionNameFirst] && argv[optionNameSecond]) {
+        throw `Please choose either --${optionNameFirst} or --${optionNameSecond}, not both.`;
     }
 }
 
