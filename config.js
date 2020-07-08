@@ -10,8 +10,7 @@ const { getOptionName } = require('./options/getOptionName');
 const { getRankedUnranked } = require('./options/getRankedUnranked');
 const { getRankedUnrankedUnderscored } = require('./options/getRankedUnrankedUnderscored');
 
-// console.js references config.DEBUG, so our own console cannot be used in config.js
-// using the native node console instead
+// config is not yet exported, cannot use our own console.js
 const console = require('console');
 
 const { droppedOptions, ogsPvAIs, rankedUnrankedOptions } = require('./constants');

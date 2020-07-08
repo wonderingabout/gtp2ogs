@@ -1,5 +1,10 @@
 // vim: tw=120 softtabstop=4 shiftwidth=4
 
+// this console can be used everywhere except before config is exported
+// if config is not yet exported, cannot access properties config.DEBUG
+// and config.logfile, so use another custom console or the native node
+// console instead of this one.
+
 const fs = require('fs')
 const tracer = require('tracer');
 
