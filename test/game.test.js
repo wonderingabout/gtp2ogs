@@ -15,6 +15,7 @@ const { stub_console } = require('./utils/stub_console');
 
 let config;
 let connection;
+const { console } = require('../console');
 
 afterEach(function () {
     sinon.restore();
@@ -28,7 +29,7 @@ describe('Game', () => {
     config = getNewConfigUncached();
     connection = getNewConnectionUncached();
 
-    stub_console();
+    stub_console(console);
     sinon.useFakeTimers();
     
     const fake_api = new FakeAPI();

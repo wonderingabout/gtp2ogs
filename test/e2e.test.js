@@ -27,7 +27,7 @@ afterEach(function () {
 
 describe('A single game', () => {
     it('works end-to-end', function() {
-        stub_console();
+        stub_console(console);
         sinon.useFakeTimers();
 
         let fake_socket = new FakeSocket();
@@ -118,7 +118,7 @@ describe('A single game', () => {
 
 describe('Games do not hang', () => {
     function setupStubs() {
-        stub_console();
+        stub_console(console);
         let clock = sinon.useFakeTimers();
 
         let fake_socket = new FakeSocket();
@@ -261,7 +261,7 @@ describe('Games do not hang', () => {
 
 describe('Periodic actions', () => {
     it('clean up idle games', () => {
-        stub_console();
+        stub_console(console);
         // Idle games should be removed after 5 seconds.
         sinon.stub(config, 'timeout').value(5000);
         let clock = sinon.useFakeTimers();

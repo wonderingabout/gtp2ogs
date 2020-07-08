@@ -15,6 +15,7 @@ const { stub_console } = require('./utils/stub_console');
 const { Bot } = require('../bot');
 const config = getNewConfig();
 const connection = require('../connection');
+const { console } = require('../console');
 
 afterEach(function () {
     sinon.restore();
@@ -22,7 +23,7 @@ afterEach(function () {
 
 describe("Pv should work", () => {
     it("should pass bot stderr output to pv class", () => {
-        stub_console();
+        stub_console(console);
         sinon.useFakeTimers();
 
         let fake_socket = new FakeSocket();
@@ -79,7 +80,7 @@ describe("Pv should work", () => {
     });
 
     function testPv(pvCode, fileName, chatBody) {
-        stub_console();
+        stub_console(console);
         sinon.useFakeTimers();
 
         let fake_socket = new FakeSocket();

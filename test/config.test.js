@@ -8,6 +8,7 @@ const { stub_console } = require('./utils/stub_console');
 
 let argv;
 let config;
+const { console } = require('../console');
 
 describe('Argv to Config', () => {
    
@@ -16,7 +17,7 @@ describe('Argv to Config', () => {
       argv = getNewArgvReset();
       config = getNewConfigUncached();
 
-      stub_console();
+      stub_console(console);
       
     });
 

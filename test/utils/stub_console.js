@@ -1,8 +1,6 @@
 const sinon = require('sinon');
 
-const { console } = require('../../console');
-
-function stub_console() {
+function stub_console(console) {
     sinon.stub(console, 'log');
     sinon.stub(console, 'debug');
     sinon.stub(console, 'error');
