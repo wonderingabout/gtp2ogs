@@ -175,7 +175,20 @@ function getArgv() {
         .describe('maxperiodtimecorrunranked', 'Maximum seconds of period time for correspondence unranked games')
     ;
 
+    adjustArgv(yargs.argv);
+
     return yargs.argv;
 }
 
 exports.getArgv = getArgv;
+
+function adjustArgv(argv) {
+    // these are needed sooner than for config: to initialize console.js
+
+    if (argv.debug) {
+        argv.DEBUG = true;
+    }
+    if (argv.logfile && typeof argv.logfile === "boolean") {
+        argv.logfile = `gtp2ogs_logfile_${new Date().toISOString()}`;
+    }
+}

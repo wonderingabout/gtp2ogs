@@ -10,8 +10,7 @@ const { getOptionName } = require('./options/getOptionName');
 const { getRankedUnranked } = require('./options/getRankedUnranked');
 const { getRankedUnrankedUnderscored } = require('./options/getRankedUnrankedUnderscored');
 
-// config is not yet exported, cannot use our own console.js
-const console = require('console');
+const { console } = require('./console');
 
 const { droppedOptions, ogsPvAIs, rankedUnrankedOptions } = require('./constants');
 
@@ -45,7 +44,7 @@ exports.updateFromArgv = function(argv) {
 
     const debugStatus = argv.debug ? "ON" : "OFF";
     console.log(`\ngtp2ogs version 6.0.1`
-                + `\n--------------------`
+                + `\n---------------------------------------`
                 + `\n- For changelog or latest devel updates, `
                 + `please visit https://github.com/online-go/gtp2ogs/tree/devel`
                 + `\nDebug status: ${debugStatus}\n`);
@@ -76,12 +75,6 @@ exports.updateFromArgv = function(argv) {
 
     // 1) Add and Modify/Adjust exports
 
-    if (argv.debug) {
-        exports.DEBUG = true;
-    }
-    if (argv.logfile && typeof argv.logfile === "boolean") {
-        exports.logfile = `gtp2ogs_logfile_${new Date().toISOString()}`;
-    }
     for (const k of ["timeout", "startupbuffer"]) {
         if (argv[k]) {
             // Convert some times to microseconds once here so

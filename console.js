@@ -8,10 +8,10 @@
 const fs = require('fs')
 const tracer = require('tracer');
 
-const config = require('./config');
+const argv = require('./getArgv').getArgv();
 
 const console_fmt = ("{{timestamp}} {{title}} "
-                     + (config.DEBUG ? "{{file}}:{{line}}{{space}} " : "")
+                     + (argv.DEBUG ? "{{file}}:{{line}}{{space}} " : "")
                      + "{{message}}");
 
 const console_config = {
@@ -25,15 +25,15 @@ const console_config = {
             case 'warn': data.title = '!'; break;
             case 'error': data.title = '!!!!!'; break;
         }
-        if (config.DEBUG) data.space = " ".repeat(Math.max(0, 30 - `${data.file}:${data.line}`.length));
+        if (argv.DEBUG) data.space = " ".repeat(Math.max(0, 30 - `${data.file}:${data.line}`.length));
     }
 };
 
-if (config.logfile) {
+if (argv.logfile) {
     const real_console = require('console');
     console_config.transport = (data) => {
         real_console.log(data.output);
-        fs.open(config.logfile, 'a', parseInt('0644', 8), function(e, id) {
+        fs.open(argv.logfile, 'a', parseInt('0644', 8), function(e, id) {
             fs.write(id, data.output+"\n", null, 'utf8', function() {
                 fs.close(id, () => { });
             });
