@@ -10,6 +10,7 @@ const { getOptionName } = require('./options/getOptionName');
 const { getRankedUnranked } = require('./options/getRankedUnranked');
 const { getRankedUnrankedUnderscored } = require('./options/getRankedUnrankedUnderscored');
 
+const { console } = require('./console');
 const { droppedOptions, ogsPvAIs, rankedUnrankedOptions } = require('./constants');
 
 exports.check_rejectnew = function() {};
@@ -179,7 +180,7 @@ function testBotCommandArgvIsValid(argv) {
     }
 
     const parsedBotCommand = JSON.stringify(argv._);
-    
+
     if (!Array.isArray(argv._)) {
         throw `Bot command (detected as ${parsedBotCommand}) was not correctly parsed as an array of parameters`
               + `, please check your syntax ( -- ).`;
