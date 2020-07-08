@@ -39,6 +39,7 @@ exports.allowed_timecontrols_ranked = {};
 exports.allowed_timecontrols_unranked = {};
 
 exports.updateFromArgv = function(argv) {
+    console.log(JSON.stringify(argv));
     // console messages
     // A- greeting and debug status
 
